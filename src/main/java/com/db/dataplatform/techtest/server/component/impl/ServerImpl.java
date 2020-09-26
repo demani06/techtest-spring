@@ -3,6 +3,7 @@ package com.db.dataplatform.techtest.server.component.impl;
 import com.db.dataplatform.techtest.server.api.model.DataBody;
 import com.db.dataplatform.techtest.server.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.server.api.model.DataHeader;
+import com.db.dataplatform.techtest.server.exception.DataBlockNotFoundException;
 import com.db.dataplatform.techtest.server.persistence.BlockTypeEnum;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -51,6 +53,30 @@ public class ServerImpl implements Server {
         return getDataEnvelopesFromEntitiesList(dataBodyEntityList);
 
     }
+
+
+    /**
+     * @param name
+     * @param blockTypeEnum
+     * @return updated Data Block
+     */
+    @Override
+    public boolean patchDataBlock(String name, BlockTypeEnum blockTypeEnum) throws DataBlockNotFoundException {
+
+        //Check if the data block exists. If it exists then update else throw exception
+        Optional<DataBodyEntity> dataByBlockNameOptional = dataBodyServiceImpl.getDataByBlockName(name);
+
+        DataBodyEntity dataBodyEntity = dataByBlockNameOptional.orElseThrow(DataBlockNotFoundException::new);
+        updateDataBlock(blockTypeEnum, dataBodyEntity);
+
+        return true;
+    }
+
+    private void updateDataBlock(BlockTypeEnum blockTypeEnum, DataBodyEntity dataBodyEntity) {
+        dataBodyEntity.getDataHeaderEntity().setBlocktype(blockTypeEnum);
+        saveData(dataBodyEntity);
+    }
+
 
     //TODO Possibly can be refactored to using Model map rather than set this manually
     private List<DataEnvelope> getDataEnvelopesFromEntitiesList(List<DataBodyEntity> dataBodyEntityList) {

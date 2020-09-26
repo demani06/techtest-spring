@@ -2,6 +2,7 @@ package com.db.dataplatform.techtest.server.api.controller;
 
 import com.db.dataplatform.techtest.server.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.server.component.Server;
+import com.db.dataplatform.techtest.server.exception.DataBlockNotFoundException;
 import com.db.dataplatform.techtest.server.persistence.BlockTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -45,6 +47,22 @@ public class ServerController {
         log.info("Got all Data envelopes by block type: {} and list : {}", blockTypeEnum, dataEnvelopeList);
 
         return ResponseEntity.ok(dataEnvelopeList);
+    }
+
+
+    @PatchMapping(value = "/update/{name}/{newBlockType}")
+    public ResponseEntity<Boolean> patchPersistedBlockByBlockType(
+            @NotBlank @PathVariable(value="name") String name,
+            @PathVariable(value="newBlockType") String newBlockType)
+            throws DataBlockNotFoundException {
+
+        log.info("Trying to patch Data block with name : {} by block type: {}", name, newBlockType);
+
+        final boolean patchDataBlock = server.patchDataBlock(name, BlockTypeEnum.valueOf(newBlockType));
+
+        log.info("Patched Data block with name : {} by block type: {}", name, newBlockType);
+
+        return ResponseEntity.ok(patchDataBlock);
     }
 
 }

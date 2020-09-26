@@ -12,10 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Client code does not require any test coverage
@@ -49,13 +48,12 @@ public class ClientImpl implements Client {
     public List<DataEnvelope> getData(String blockType) {
         log.info("Query for data with header block type {}", blockType);
 
-        var httpEntity = new HttpEntity<>(getHttpHeaders());
+        HttpEntity<DataEnvelope> httpEntity = new HttpEntity<>(getHttpHeaders());
 
         final String url = URI_GETDATA.toString();
 
         Map<String, String> params = new HashMap<>();
         params.put("blockType", blockType);
-
         ResponseEntity<List<DataEnvelope>> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, new ParameterizedTypeReference<List<DataEnvelope>>() {
         }, params);
 
@@ -67,7 +65,24 @@ public class ClientImpl implements Client {
     @Override
     public boolean updateData(String blockName, String newBlockType) {
         log.info("Updating blocktype to {} for block with name {}", newBlockType, blockName);
-        return true;
+
+        HttpEntity<Boolean> httpEntity = new HttpEntity<>(getHttpHeaders());
+
+        final String url = URI_PATCHDATA.toString();
+
+        Map<String, String> params = new HashMap<>();
+        params.put("name", blockName);
+        params.put("newBlockType", newBlockType);
+        ResponseEntity<Boolean> responseEntity = restTemplate.exchange(url, HttpMethod.PATCH, httpEntity, Boolean.class, params);
+
+        boolean returnValue = false;
+        if(nonNull(responseEntity.getBody())){
+            returnValue = true;
+        }
+
+        log.info("Response after patching the data for block name {} and block type {},  return value: {}",blockName, newBlockType, returnValue);
+
+        return returnValue;
     }
 
     private HttpHeaders getHttpHeaders() {
