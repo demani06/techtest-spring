@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface Server {
 
-    boolean saveDataEnvelope(DataEnvelope envelope) throws IOException, NoSuchAlgorithmException;
+    boolean saveDataEnvelope(DataEnvelope envelope, String checkSumInput) throws IOException, NoSuchAlgorithmException;
 
     List<DataEnvelope> getDataEnvelopeListByBlockType(BlockTypeEnum blockType);
 

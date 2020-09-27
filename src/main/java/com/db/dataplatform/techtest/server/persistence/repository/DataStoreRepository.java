@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface DataStoreRepository extends JpaRepository<DataBodyEntity, Long> {
 
-    List<DataBodyEntity> findAllByDataHeaderEntityBlocktype(BlockTypeEnum blockTypeEnum);
+    List<DataBodyEntity> findAllByDataHeaderEntityBlockType(BlockTypeEnum blockTypeEnum);
 
     Optional<DataBodyEntity> findByDataHeaderEntityName(String blockName);
 

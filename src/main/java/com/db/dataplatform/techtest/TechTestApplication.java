@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -20,6 +21,7 @@ import static com.db.dataplatform.techtest.Constant.DUMMY_DATA;
 
 @SpringBootApplication
 @EnableRetry
+@EnableAsync
 public class TechTestApplication {
 
 	public static final String HEADER_NAME = "TSLA-USDGBP-10Y";

@@ -14,6 +14,7 @@ import org.springframework.web.util.UriTemplate;
 
 import java.util.*;
 
+import static com.db.dataplatform.techtest.server.utils.Utils.getHttpHeaders;
 import static java.util.Objects.nonNull;
 
 /**
@@ -83,12 +84,6 @@ public class ClientImpl implements Client {
         log.info("Response after patching the data for block name {} and block type {},  return value: {}",blockName, newBlockType, returnValue);
 
         return returnValue;
-    }
-
-    private HttpHeaders getHttpHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        return headers;
     }
 
 }

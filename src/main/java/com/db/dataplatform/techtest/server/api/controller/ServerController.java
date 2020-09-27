@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -28,17 +29,19 @@ public class ServerController {
     private final Server server;
 
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) throws IOException, NoSuchAlgorithmException {
+    public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope,
+                                            @RequestHeader(required = false) String checkSumInput) throws IOException, NoSuchAlgorithmException {
 
         log.info("Data envelope received: {}", dataEnvelope.getDataHeader().getName());
-        boolean checksumPass = server.saveDataEnvelope(dataEnvelope);
+        boolean checksumPass = server.saveDataEnvelope(dataEnvelope, checkSumInput);
 
         log.info("Data envelope persisted. Attribute name: {}", dataEnvelope.getDataHeader().getName());
         return ResponseEntity.ok(checksumPass);
     }
 
     @GetMapping(value = "/data/{blockType}")
-    public ResponseEntity<List<DataEnvelope>> getPersistedBlockByBlockType(@PathVariable(value="blockType") BlockTypeEnum blockTypeEnum) {
+    public ResponseEntity<List<DataEnvelope>> getPersistedBlockByBlockType
+            (@PathVariable(value="blockType") BlockTypeEnum blockTypeEnum) {
 
         log.info("Getting all Data envelope by block type: {}", blockTypeEnum);
 
@@ -52,7 +55,7 @@ public class ServerController {
 
     @PatchMapping(value = "/update/{name}/{newBlockType}")
     public ResponseEntity<Boolean> patchPersistedBlockByBlockType(
-            @NotBlank @PathVariable(value="name") String name,
+            @NotBlank @Size(max = 20) @PathVariable(value="name") String name,
             @PathVariable(value="newBlockType") String newBlockType)
             throws DataBlockNotFoundException {
 

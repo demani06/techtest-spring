@@ -36,7 +36,7 @@ public class DataHeaderEntity {
 
     @Column(name = "BLOCKTYPE")
     @Enumerated(EnumType.STRING)
-    private BlockTypeEnum blocktype;
+    private BlockTypeEnum blockType;
 
 
     @Column(name = "CREATED_TIMESTAMP")

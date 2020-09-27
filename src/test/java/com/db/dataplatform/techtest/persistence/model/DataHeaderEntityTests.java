@@ -23,7 +23,7 @@ public class DataHeaderEntityTests {
         DataHeaderEntity dataHeaderEntity = TestDataHelper.createTestDataHeaderEntity(expectedTimestamp);
 
         assertThat(dataHeaderEntity.getName()).isEqualTo(TEST_NAME);
-        assertThat(dataHeaderEntity.getBlocktype()).isEqualTo(BlockTypeEnum.BLOCKTYPEA);
+        assertThat(dataHeaderEntity.getBlockType()).isEqualTo(BlockTypeEnum.BLOCKTYPEA);
         assertThat(dataHeaderEntity.getCreatedTimestamp()).isEqualTo(expectedTimestamp);
     }
 
