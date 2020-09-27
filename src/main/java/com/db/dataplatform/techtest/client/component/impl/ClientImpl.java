@@ -4,15 +4,19 @@ import com.db.dataplatform.techtest.client.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.client.component.Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.db.dataplatform.techtest.server.utils.Utils.getHttpHeaders;
 import static java.util.Objects.nonNull;
@@ -36,12 +40,13 @@ public class ClientImpl implements Client {
     @Override
     public void pushData(DataEnvelope dataEnvelope) {
         log.info("Pushing data {} to {}", dataEnvelope.getDataHeader().getName(), URI_PUSHDATA);
+        final HttpHeaders httpHeaders = getHttpHeaders();
+        httpHeaders.add("checkSum", "E96FE4914DC94E9AAF2FABB3B4E63366");
 
-        HttpEntity<DataEnvelope> httpEntity = new HttpEntity<>(dataEnvelope, getHttpHeaders());
+        HttpEntity<DataEnvelope> httpEntity = new HttpEntity<>(dataEnvelope, httpHeaders);
         ResponseEntity<Boolean> responseEntity = restTemplate.exchange(URI_PUSHDATA, HttpMethod.POST, httpEntity, Boolean.class);
 
-        log.info("Response returned with status code :{} and returned value {}", responseEntity.getStatusCode(), responseEntity.getBody());
-
+        log.info("Push Data Response returned value: {}", responseEntity.getBody());
 
     }
 

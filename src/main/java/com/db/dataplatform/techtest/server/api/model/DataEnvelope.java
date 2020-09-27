@@ -2,7 +2,9 @@ package com.db.dataplatform.techtest.server.api.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -20,4 +22,7 @@ public class DataEnvelope {
 
     @NotNull
     private DataBody dataBody;
+
+    private String checkSum;
+
 }

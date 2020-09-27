@@ -8,8 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static com.db.dataplatform.techtest.TestDataHelper.DUMMY_DATA;
-import static com.db.dataplatform.techtest.TestDataHelper.TEST_NAME;
+import static com.db.dataplatform.techtest.TestDataHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -20,7 +19,7 @@ public class DataEnvelopeTests {
         DataHeader dataHeader = new DataHeader(TEST_NAME, BlockTypeEnum.BLOCKTYPEA);
         DataBody dataBody = new DataBody(DUMMY_DATA);
 
-        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody);
+        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, HEADER_CHECKSUM_VALUE);
 
         assertThat(dataEnvelope).isNotNull();
         assertThat(dataEnvelope.getDataHeader()).isNotNull();

@@ -1,14 +1,14 @@
 package com.db.dataplatform.techtest.service;
 
 import com.db.dataplatform.techtest.server.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.server.component.Server;
+import com.db.dataplatform.techtest.server.component.impl.ServerImpl;
 import com.db.dataplatform.techtest.server.exception.DataBlockNotFoundException;
 import com.db.dataplatform.techtest.server.mapper.ServerMapperConfiguration;
 import com.db.dataplatform.techtest.server.persistence.BlockTypeEnum;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
 import com.db.dataplatform.techtest.server.service.DataBodyService;
-import com.db.dataplatform.techtest.server.component.Server;
-import com.db.dataplatform.techtest.server.component.impl.ServerImpl;
 import com.db.dataplatform.techtest.server.service.DataLakeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.db.dataplatform.techtest.TechTestApplication.HEADER_NAME;
+import static com.db.dataplatform.techtest.TestDataHelper.HEADER_CHECKSUM_VALUE;
 import static com.db.dataplatform.techtest.TestDataHelper.createTestDataEnvelopeApiObject;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -59,7 +61,7 @@ public class ServerServiceTests {
 
     @Test
     public void shouldSaveDataEnvelopeAsExpected() throws NoSuchAlgorithmException, IOException {
-        boolean success = server.saveDataEnvelope(testDataEnvelope, "");
+        boolean success = server.saveDataEnvelope(testDataEnvelope, HEADER_CHECKSUM_VALUE);
 
         assertThat(success).isTrue();
         verify(dataBodyServiceImplMock, times(1)).saveDataBody(any());

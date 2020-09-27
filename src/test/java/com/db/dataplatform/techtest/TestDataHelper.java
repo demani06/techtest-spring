@@ -14,6 +14,7 @@ public class TestDataHelper {
     public static final String TEST_NAME = "Test";
     public static final String TEST_NAME_EMPTY = "";
     public static final String DUMMY_DATA = "AKCp5fU4WNWKBVvhXsbNhqk33tawri9iJUkA5o4A6YqpwvAoYjajVw8xdEw6r9796h1wEp29D";
+    public static final String HEADER_CHECKSUM_VALUE = "E96FE4914DC94E9AAF2FABB3B4E63366";
 
     public static DataHeaderEntity createTestDataHeaderEntity(Instant expectedTimestamp) {
         DataHeaderEntity dataHeaderEntity = new DataHeaderEntity();
@@ -34,13 +35,13 @@ public class TestDataHelper {
         DataBody dataBody = new DataBody(DUMMY_DATA);
         DataHeader dataHeader = new DataHeader(TEST_NAME, BlockTypeEnum.BLOCKTYPEA);
 
-        return new DataEnvelope(dataHeader, dataBody);
+        return new DataEnvelope(dataHeader, dataBody, HEADER_CHECKSUM_VALUE);
     }
 
     public static DataEnvelope createTestDataEnvelopeApiObjectWithEmptyName() {
         DataBody dataBody = new DataBody(DUMMY_DATA);
         DataHeader dataHeader = new DataHeader(TEST_NAME_EMPTY, BlockTypeEnum.BLOCKTYPEA);
 
-        return new DataEnvelope(dataHeader, dataBody);
+        return new DataEnvelope(dataHeader, dataBody, HEADER_CHECKSUM_VALUE);
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.db.dataplatform.techtest.server.utils.Utils.getChecksum;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
@@ -40,25 +41,41 @@ public class ServerImpl implements Server {
     @Override
     public boolean saveDataEnvelope(DataEnvelope envelope, final String checkSumInput) {
 
-        if (isValidCheckSum(envelope, checkSumInput)) {
-            persist(envelope);
+        final boolean isValidCheckSum = isValidCheckSum(envelope, checkSumInput);
+        log.info("CheckSum valid ? ={}", isValidCheckSum);
+
+        if (isValidCheckSum) {
+            persist(envelope, checkSumInput);
         }
 
         log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
-        return true;
+        return isValidCheckSum;
     }
 
     private boolean isValidCheckSum(DataEnvelope envelope, String checkSumInput) {
+
+        String calculatedCheckSum = calculateCheckSum(envelope);
+
+        log.info("calculated Checkum ={}", calculatedCheckSum);
+
+        log.info("Checking if Valid check sum for checksum input ={}, calculateCheckSum={}", checkSumInput, calculatedCheckSum);
+
+        return nonNull(calculatedCheckSum) && checkSumInput.equals(calculatedCheckSum);
+    }
+
+    private String calculateCheckSum(DataEnvelope envelope) {
+
+        log.info("calculating checkSum");
+
+        String calculatedCheckSum = null;
         try {
-            String calculatedCheckSum = getChecksum(envelope.getDataBody().getDataBody());
-            //actual implementation of checking against the persisted is not done due to time constraints
-            //and this is a placeholder where that feature can be added retrospectively
+            calculatedCheckSum = getChecksum(envelope.getDataBody().getDataBody());
         } catch (IOException e) {
             log.error("Exception: {}", e.getCause());
         } catch (NoSuchAlgorithmException e) {
             log.info("Data Entity list from repo with attribute name: {}", e);
         }
-        return true;
+        return calculatedCheckSum;
     }
 
     /**
@@ -106,16 +123,17 @@ public class ServerImpl implements Server {
         return dataEnvelopeList;
     }
 
-    private void persist(DataEnvelope envelope) {
+    private void persist(DataEnvelope envelope, String checkSumInput) {
         log.info("Persisting data with attribute name: {}", envelope.getDataHeader().getName());
         DataHeaderEntity dataHeaderEntity = modelMapper.map(envelope.getDataHeader(), DataHeaderEntity.class);
+        dataHeaderEntity.setCheckSum(checkSumInput);
 
         DataBodyEntity dataBodyEntity = modelMapper.map(envelope.getDataBody(), DataBodyEntity.class);
         dataBodyEntity.setDataHeaderEntity(dataHeaderEntity);
 
         saveData(dataBodyEntity);
 
-        log.info("Call to Push Data service started with entity dataBodyEntity: {}", dataBodyEntity);
+        log.info("Call to Push Data Lake started with entity dataBodyEntity: {}", dataBodyEntity);
 
         dataLakeService.pushDataToDataLake(dataBodyEntity);
     }

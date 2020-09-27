@@ -30,13 +30,14 @@ public class ServerController {
 
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope,
-                                            @RequestHeader(required = false) String checkSumInput) throws IOException, NoSuchAlgorithmException {
+                                            @RequestHeader(required = false) String checkSum)
+            throws IOException, NoSuchAlgorithmException {
 
         log.info("Data envelope received: {}", dataEnvelope.getDataHeader().getName());
-        boolean checksumPass = server.saveDataEnvelope(dataEnvelope, checkSumInput);
+        boolean checkSumOutput = server.saveDataEnvelope(dataEnvelope, checkSum);
 
-        log.info("Data envelope persisted. Attribute name: {}", dataEnvelope.getDataHeader().getName());
-        return ResponseEntity.ok(checksumPass);
+        log.info("Push Data Envelope checkSumOutput : {}", checkSumOutput);
+        return ResponseEntity.ok(checkSumOutput);
     }
 
     @GetMapping(value = "/data/{blockType}")
