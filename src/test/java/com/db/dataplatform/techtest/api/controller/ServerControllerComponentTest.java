@@ -1,5 +1,7 @@
 package com.db.dataplatform.techtest.api.controller;
 
+import com.db.dataplatform.techtest.Constant;
+import com.db.dataplatform.techtest.server.api.RestResponseEntityExceptionHandler;
 import com.db.dataplatform.techtest.server.api.controller.ServerController;
 import com.db.dataplatform.techtest.server.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.server.component.Server;
@@ -18,11 +20,14 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.util.UriTemplate;
 
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.db.dataplatform.techtest.TestDataHelper.createTestDataEnvelopeApiObject;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +55,9 @@ public class ServerControllerComponentTest {
 	@Before
 	public void setUp() throws HadoopClientException, NoSuchAlgorithmException, IOException, DataBlockNotFoundException {
 		serverController = new ServerController(serverMock);
-		mockMvc = standaloneSetup(serverController).build();
+		mockMvc = standaloneSetup(serverController)
+				.setControllerAdvice(new RestResponseEntityExceptionHandler())
+				.build();
 		objectMapper = Jackson2ObjectMapperBuilder
 				.json()
 				.build();
@@ -83,6 +90,25 @@ public class ServerControllerComponentTest {
 	}
 
 	@Test
+	public void testPushDataPostFor409WhenDuplicateDataBlock() throws Exception {
+
+		//Given
+		when(serverMock.saveDataEnvelope(any(DataEnvelope.class), any())).thenThrow(new ConstraintViolationException(Collections.EMPTY_SET));
+		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
+
+		//When
+		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
+				.content(testDataEnvelopeJson)
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andExpect(status().isConflict())
+				.andReturn();
+
+		//then
+		String responseBody = mvcResult.getResponse().getContentAsString();
+		assertThat(responseBody).contains(Constant.CONSTRAINT_VIOLATION_EXCEPTION_ERROR_MESSAGE);
+	}
+
+	@Test
 	public void testGetDataCallWorksAsExpected() throws Exception {
 
 		String getURI = URI_GETDATA.toString().replace("{blockType}", BlockTypeEnum.BLOCKTYPEA.name());
@@ -110,6 +136,28 @@ public class ServerControllerComponentTest {
 
 		boolean checksumPass = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
 		assertThat(checksumPass).isTrue();
+
+	}
+
+	@Test
+	public void testPatchDataWorksAsExpectedFor400WhenDataBlockNotFoundToPatch() throws Exception {
+		//given
+		when(serverMock.patchDataBlock(any(), any())).thenThrow(new DataBlockNotFoundException());
+
+		String patchURI = URI_PATCHDATA.toString()
+				.replace("{name}", "TSLA-USDGBP-10Y")
+				.replace("{newBlockType}", BlockTypeEnum.BLOCKTYPEB.name());
+
+		//when
+		final MvcResult mvcResult = mockMvc.perform(patch(patchURI)
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andDo(MockMvcResultHandlers.print())
+				.andExpect(status().isBadRequest())
+				.andReturn();
+
+		//then
+		String responseBody = mvcResult.getResponse().getContentAsString();
+		assertThat(responseBody).contains(Constant.DATA_BLOCK_NOT_FOUND_EXCEPTION_ERROR_MESSAGE);
 
 	}
 

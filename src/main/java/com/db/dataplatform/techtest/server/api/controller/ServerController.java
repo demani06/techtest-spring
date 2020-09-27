@@ -52,7 +52,9 @@ public class ServerController {
         return ResponseEntity.ok(dataEnvelopeList);
     }
 
-
+    /*
+    * Validations added to name as part of the requirement - not to be blank and max size of 20
+    * */
     @PatchMapping(value = "/update/{name}/{newBlockType}")
     public ResponseEntity<Boolean> patchPersistedBlockByBlockType(
             @NotBlank @Size(max = 20) @PathVariable(value="name") String name,

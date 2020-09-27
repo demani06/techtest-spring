@@ -65,7 +65,7 @@ public class ClientImpl implements Client {
 
     @Override
     public boolean updateData(String blockName, String newBlockType) {
-        log.info("Updating blocktype to {} for block with name {}", newBlockType, blockName);
+        log.info("Updating blockType to {} for block with name {}", newBlockType, blockName);
 
         HttpEntity<Boolean> httpEntity = new HttpEntity<>(getHttpHeaders());
 
